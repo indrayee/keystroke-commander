@@ -3,10 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Capture Hotkey" Height="160" Width="380"
         Background="#181A20" Foreground="#E2E4E9"
-        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
-        KeyDown="OnKeyDown" KeyUp="OnKeyUp"
-        PreviewKeyDown="OnPreviewKeyDown"
-        PreviewKeyUp="OnPreviewKeyUp">
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
   <Window.Resources>
     <Style TargetType="Button">
       <Setter Property="Background" Value="#23262E" />

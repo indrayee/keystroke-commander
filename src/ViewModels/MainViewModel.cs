@@ -41,7 +41,6 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(ProfileCountText))]
-    [NotifyPropertyChangedFor(nameof(GlobalStopHotkey))]
     private string _globalStopHotkey = "Shift+Alt+End";
 
     [ObservableProperty]

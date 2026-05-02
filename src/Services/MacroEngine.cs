@@ -13,6 +13,9 @@ public class MacroEngine : IDisposable
     [DllImport("user32.dll")]
     static extern uint SendInput(uint nInputs, [MarshalAs(UnmanagedType.LPArray)] INPUT[] pInputs, int cbSize);
 
+    [DllImport("user32.dll")]
+    static extern uint SendInput(uint nInputs, IntPtr pInputs, int cbSize);
+
     [StructLayout(LayoutKind.Sequential)]
     struct INPUT
     {

@@ -124,6 +124,24 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void RefreshWindows()
+    {
+        var list = _windowManager.GetVisibleWindows();
+        System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+        {
+            var prev = SelectedWindow;
+            VisibleWindows.Clear();
+            foreach (var w in list) VisibleWindows.Add(w);
+            // Try to restore selection if window still exists
+            if (prev != null)
+            {
+                var match = VisibleWindows.FirstOrDefault(w => w.Hwnd == prev.Hwnd);
+                if (match != null) SelectedWindow = match;
+            }
+        });
+    }
+
+    [RelayCommand]
     private void LockWindow()
     {
         if (IsLocked)

@@ -84,6 +84,24 @@
       <Setter Property="BorderBrush" Value="#333842" />
       <Setter Property="Padding" Value="6 5" />
       <Setter Property="FontSize" Value="13" />
+      <Setter Property="ItemContainerStyle">
+        <Setter.Value>
+          <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#1A1D24" />
+            <Setter Property="Foreground" Value="#E2E4E9" />
+            <Setter Property="Padding" Value="8 6" />
+            <Style.Triggers>
+              <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="#1A2F4A" />
+                <Setter Property="Foreground" Value="#FFFFFF" />
+              </Trigger>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#23262E" />
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </Setter.Value>
+      </Setter>
     </Style>
 
     <Style x:Key="HotkeyBadge" TargetType="Border">
@@ -135,7 +153,8 @@
                     VerticalAlignment="Center" Margin="0 0 8 0" />
           <ComboBox x:Name="WindowPicker" Width="340" VerticalAlignment="Center"
                     ItemsSource="{Binding VisibleWindows}"
-                    SelectedItem="{Binding SelectedWindow}">
+                    SelectedItem="{Binding SelectedWindow}"
+                    ToolTip="Select target window — will receive all keystrokes">
             <ComboBox.ItemTemplate>
               <DataTemplate>
                 <TextBlock>
@@ -151,6 +170,10 @@
               </DataTemplate>
             </ComboBox.ItemTemplate>
           </ComboBox>
+          <Button Style="{StaticResource SmallButton}" Margin="6 0 0 0"
+                  Content="⟳" FontSize="16" Padding="4 0"
+                  ToolTip="Refresh window list"
+                  Command="{Binding RefreshWindowsCommand}" />
         </StackPanel>
 
         <Button Style="{StaticResource GreenButton}" Margin="8 0"

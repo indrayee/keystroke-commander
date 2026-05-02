@@ -33,6 +33,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _alwaysOnTop;
 
+    private bool _windowPickerIsOpen;
+
     [ObservableProperty]
     private ObservableCollection<WindowInfo> _visibleWindows = new();
 
@@ -40,8 +42,10 @@ public partial class MainViewModel : ObservableObject
     private WindowInfo? _selectedWindow;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ProfileCountText))]
     private string _globalStopHotkey = "Shift+Alt+End";
+
+    [ObservableProperty]
+    private bool _isRecordingHotkey;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EditorTitle))]
@@ -73,7 +77,6 @@ public partial class MainViewModel : ObservableObject
         if (!Profiles.Contains(SelectedProfile))
             Profiles.Add(SelectedProfile);
 
-        OnSelectedProfileChanged(SelectedProfile);
         _ = RefreshWindowsLoopAsync();
     }
 
@@ -113,12 +116,20 @@ public partial class MainViewModel : ObservableObject
     {
         while (true)
         {
-            await Task.Delay(2000);
+            await Task.Delay(3000);
+            if (_windowPickerIsOpen) continue;
             var list = _windowManager.GetVisibleWindows();
             await System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
             {
+                var prev = SelectedWindow;
                 VisibleWindows.Clear();
                 foreach (var w in list) VisibleWindows.Add(w);
+                // Restore selection if window still exists
+                if (prev != null)
+                {
+                    var match = list.FirstOrDefault(w => w.Hwnd == prev.Hwnd);
+                    if (match != null) SelectedWindow = match;
+                }
             })!;
         }
     }
@@ -225,19 +236,30 @@ public partial class MainViewModel : ObservableObject
     private void ChangeHotkey()
     {
         if (SelectedProfile == null) return;
-        // TODO: Replace with proper WPF dialog
-        SelectedProfile.Hotkey = null;
-        OnPropertyChanged(nameof(SelectedProfile));
-        RefreshHotkeys();
-        SaveProfiles();
+        IsRecordingHotkey = true;
+        var dlg = new HotkeyDialog { Owner = System.Windows.Application.Current.MainWindow };
+        if (dlg.ShowDialog() == true && !string.IsNullOrWhiteSpace(dlg.CapturedCombo))
+        {
+            SelectedProfile.Hotkey = dlg.CapturedCombo;
+            OnPropertyChanged(nameof(SelectedProfile));
+            RefreshHotkeys();
+            SaveProfiles();
+        }
+        IsRecordingHotkey = false;
     }
 
     [RelayCommand]
     private void ChangeGlobalStopHotkey()
     {
-        // TODO: Replace with proper WPF dialog
-        RefreshHotkeys();
-        SaveProfiles();
+        IsRecordingHotkey = true;
+        var dlg = new HotkeyDialog { Owner = System.Windows.Application.Current.MainWindow };
+        if (dlg.ShowDialog() == true && !string.IsNullOrWhiteSpace(dlg.CapturedCombo))
+        {
+            GlobalStopHotkey = dlg.CapturedCombo;
+            RefreshHotkeys();
+            SaveProfiles();
+        }
+        IsRecordingHotkey = false;
     }
 
     [RelayCommand]

@@ -1,29 +1,34 @@
-using System;
-using System.ComponentModel;
 using System.Windows;
+using KeystrokeCommander.ViewModels;
 
 namespace KeystrokeCommander;
 
 public partial class MainWindow : Window
 {
-    private readonly ViewModels.MainViewModel _vm;
-
     public MainWindow()
     {
         InitializeComponent();
-        _vm = (ViewModels.MainViewModel)DataContext;
+        Loaded += (_, _) =>
+        {
+            if (DataContext is MainViewModel vm)
+                vm.InitHotkeys(new System.Windows.Interop.WindowInteropHelper(this).Handle);
+        };
+        Closing += (_, _) =>
+        {
+            if (DataContext is MainViewModel vm)
+                vm.Cleanup();
+        };
     }
 
-    protected override void OnSourceInitialized(EventArgs e)
+    private void WindowPicker_DropDownOpened(object sender, System.EventArgs e)
     {
-        base.OnSourceInitialized(e);
-        var helper = new System.Windows.Interop.WindowInteropHelper(this);
-        _vm.InitHotkeys(helper.Handle);
+        if (DataContext is MainViewModel vm)
+            vm.WindowPickerIsOpen = true;
     }
 
-    protected override void OnClosing(CancelEventArgs e)
+    private void WindowPicker_DropDownClosed(object sender, System.EventArgs e)
     {
-        _vm.Cleanup();
-        base.OnClosing(e);
+        if (DataContext is MainViewModel vm)
+            vm.WindowPickerIsOpen = false;
     }
 }

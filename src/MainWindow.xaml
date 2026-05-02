@@ -183,7 +183,9 @@
           <ComboBox x:Name="WindowPicker" Width="340" VerticalAlignment="Center"
                     ItemsSource="{Binding VisibleWindows}"
                     SelectedItem="{Binding SelectedWindow}"
-                    ToolTip="Select target window — will receive all keystrokes">
+                    ToolTip="Select target window — will receive all keystrokes"
+                    DropDownOpened="WindowPicker_DropDownOpened"
+                    DropDownClosed="WindowPicker_DropDownClosed">
             <ComboBox.ItemTemplate>
               <DataTemplate>
                 <TextBlock>

@@ -45,7 +45,7 @@ public partial class HotkeyDialog : Window
         UpdateDisplay();
     }
 
-    private void Window_KeyUp(object sender, KeyEventArgs e)
+    private void Window_PreviewKeyUp(object sender, KeyEventArgs e)
     {
         e.Handled = true;
         var key = e.Key == Key.System ? e.SystemKey : e.Key;

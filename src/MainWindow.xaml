@@ -445,6 +445,26 @@
         <TextBlock Text="{Binding RunningStatusText}" FontSize="11"
                   Foreground="#E2E4E9" VerticalAlignment="Center"
                   Margin="12 0 0 0" FontFamily="Consolas"/>
+
+        <!-- Info icon with tooltip -->
+        <TextBlock Text="ⓘ" FontSize="11" Foreground="#339AF0"
+                  VerticalAlignment="Center" Margin="8 0 0 0"
+                  Cursor="Hand" ToolTipService.InitialShowDelay="0">
+          <TextBlock.ToolTip>
+            <ToolTip Background="#1E2128" Foreground="#E2E4E9"
+                     BorderBrush="#339AF0" BorderThickness="1">
+              <TextBlock TextWrapping="Wrap" MaxWidth="380" Padding="6">
+                <Run FontWeight="Bold" Foreground="#339AF0">Status Bar Guide</Run>
+                <LineBreak />
+                • Green "✓" = all hotkeys registered and listening.
+                <LineBreak />
+                • Red "FAILED" = a hotkey is taken by Windows or another app. Pick a different combo.
+                <LineBreak />
+                • 🟢 RUNNING = macro is actively sending keystrokes to the locked window.
+              </TextBlock>
+            </ToolTip>
+          </TextBlock.ToolTip>
+        </TextBlock>
       </StackPanel>
     </Border>
   </Grid>

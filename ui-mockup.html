@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Keystroke Commander — UI Layout Mockup</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0f1115;
+      color: #e2e4e9;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px;
+      min-height: 100vh;
+    }
+    .app-frame {
+      width: 1100px;
+      background: #181a20;
+      border: 1px solid #2a2d35;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    /* === TOP BAR === */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #1e2128;
+      border-bottom: 1px solid #2a2d35;
+    }
+    .top-bar label { font-size: 11px; text-transform: uppercase; color: #8b90a0; letter-spacing: 0.5px; }
+    .window-picker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+    select {
+      background: #13151a;
+      border: 1px solid #333842;
+      color: #e2e4e9;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      min-width: 280px;
+    }
+    .btn {
+      padding: 6px 14px;
+      border-radius: 4px;
+      border: 1px solid #333842;
+      background: #23262e;
+      color: #e2e4e9;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover { background: #2a2e38; }
+    .btn.lock { border-color: #2d6a4f; color: #69db7c; }
+    .btn.stop { border-color: #8b1e1e; color: #ff6b6b; }
+    .status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .status-dot.green { background: #51cf66; box-shadow: 0 0 6px #51cf66; }
+    .status-dot.red { background: #ff6b6b; box-shadow: 0 0 6px #ff6b6b; }
+    .status-dot.yellow { background: #fcc419; box-shadow: 0 0 6px #fcc419; }
+
+    /* === BODY: 2 PANELS === */
+    .body {
+      display: flex;
+      height: 640px;
+    }
+
+    /* === LEFT PANEL === */
+    .left-panel {
+      width: 280px;
+      background: #181a20;
+      border-right: 1px solid #2a2d35;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header {
+      padding: 12px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #8b90a0;
+      border-bottom: 1px solid #2a2d35;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .profile-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .profile-item {
+      padding: 10px 16px;
+      border-bottom: 1px solid #22252d;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .profile-item:hover { background: #1e2128; }
+    .profile-item.active {
+      background: #1a2f4a;
+      border-left: 3px solid #339af0;
+    }
+    .profile-name { font-size: 13px; color: #e2e4e9; }
+    .profile-hotkey {
+      font-size: 11px;
+      background: #23262e;
+      padding: 2px 8px;
+      border-radius: 3px;
+      color: #8b90a0;
+      border: 1px solid #333842;
+    }
+    .profile-item.active .profile-hotkey {
+      background: #339af0;
+      color: #fff;
+      border-color: #339af0;
+    }
+    .global-stop {
+      margin: 12px 16px;
+      padding: 8px 12px;
+      background: #2a1515;
+      border: 1px solid #5c1e1e;
+      border-radius: 4px;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .global-stop kbd {
+      background: #3a1a1a;
+      padding: 2px 8px;
+      border-radius: 3px;
+      border: 1px solid #5c1e1e;
+      font-family: monospace;
+      color: #ff6b6b;
+    }
+    .btn-new {
+      margin: 12px 16px;
+      padding: 8px;
+      text-align: center;
+      background: #1e2128;
+      border: 1px dashed #444;
+      color: #8b90a0;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-new:hover { border-color: #666; color: #ccc; }
+
+    /* === RIGHT PANEL === */
+    .right-panel {
+      flex: 1;
+      background: #14161c;
+      display: flex;
+      flex-direction: column;
+    }
+    .profile-meta {
+      padding: 16px 20px;
+      border-bottom: 1px solid #2a2d35;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .profile-meta input[type="text"] {
+      background: #13151a;
+      border: 1px solid #333842;
+      color: #e2e4e9;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 200px;
+    }
+    .mode-toggle {
+      display: flex;
+      background: #13151a;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid #333842;
+    }
+    .mode-toggle label {
+      padding: 6px 14px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .mode-toggle label.active {
+      background: #339af0;
+      color: #fff;
+    }
+    .hotkey-edit {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #8b90a0;
+    }
+    .hotkey-edit kbd {
+      background: #23262e;
+      padding: 4px 10px;
+      border-radius: 3px;
+      border: 1px solid #444;
+      color: #e2e4e9;
+      font-family: monospace;
+    }
+
+    /* === SEQUENCE TABLE === */
+    .sequence-area {
+      flex: 1;
+      padding: 16px 20px;
+      overflow-y: auto;
+    }
+    .section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #6b7080;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      text-align: left;
+      padding: 8px 10px;
+      color: #8b90a0;
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #2a2d35;
+    }
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #22252d;
+      vertical-align: middle;
+    }
+    td input {
+      background: #13151a;
+      border: 1px solid #333842;
+      color: #e2e4e9;
+      padding: 5px 8px;
+      border-radius: 3px;
+      font-size: 13px;
+      width: 100%;
+    }
+    td input[type="checkbox"] {
+      width: auto;
+      accent-color: #339af0;
+    }
+    .key-cell { width: 120px; }
+    .delay-cell { width: 100px; }
+    .hold-cell { width: 80px; }
+    .jitter-cell { width: 60px; text-align: center; }
+    .actions-cell { width: 80px; }
+    .status-badge {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    .status-badge.running { background: #51cf66; }
+    .status-badge.paused { background: #fcc419; }
+    .btn-small {
+      padding: 4px 10px;
+      font-size: 11px;
+      border-radius: 3px;
+      border: 1px solid #333842;
+      background: #23262e;
+      color: #8b90a0;
+      cursor: pointer;
+    }
+    .btn-small:hover { background: #2a2e38; color: #e2e4e9; }
+    .btn-small.danger { border-color: #5c1e1e; color: #ff6b6b; }
+    .btn-small.danger:hover { background: #3a1a1a; }
+
+    .add-row {
+      margin-top: 12px;
+      padding: 8px;
+      text-align: center;
+      background: #181a20;
+      border: 1px dashed #444;
+      color: #6b7080;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .add-row:hover { border-color: #666; color: #999; }
+
+    /* === CONCURRENT MODE OVERRIDE === */
+    .concurrent-table th.interval-cell { width: 110px; }
+    .concurrent-table .interval-cell { width: 110px; }
+
+    .hint {
+      margin-top: 16px;
+      padding: 10px 14px;
+      background: #1a2520;
+      border: 1px solid #2d4a35;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #69db7c;
+    }
+    .hint strong { color: #b2f2bb; }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="app-frame">
+  <!-- ========== TOP BAR ========== -->
+  <div class="top-bar">
+    <div class="window-picker">
+      <label>Target Window</label>
+      <select>
+        <option>Diablo IV.exe — "Diablo IV" (1920x1080)</option>
+        <option>notepad.exe — "Untitled - Notepad"</option>
+        <option>chrome.exe — "YouTube - Google Chrome"</option>
+      </select>
+    </div>
+    <button class="btn lock">
+      <span class="status-dot green"></span> Lock
+    </button>
+    <button class="btn stop">
+      <span class="status-dot red"></span> Stop All
+    </button>
+    <label style="margin-left:auto; display:flex; align-items:center; gap:6px; font-size:12px;">
+      <input type="checkbox" checked> Always on Top
+    </label>
+  </div>
+
+  <!-- ========== BODY ========== -->
+  <div class="body">
+
+    <!-- === LEFT PANEL === -->
+    <div class="left-panel">
+      <div class="panel-header">
+        Profiles
+        <span style="font-size:11px; color:#6b7080;">4 profiles</span>
+      </div>
+      <div class="profile-list">
+        <div class="profile-item">
+          <span class="profile-name">Diablo Farm</span>
+          <span class="profile-hotkey">F2</span>
+        </div>
+        <div class="profile-item active">
+          <span class="profile-name">Buff Rotation</span>
+          <span class="profile-hotkey">Shift+Alt+S</span>
+        </div>
+        <div class="profile-item">
+          <span class="profile-name">Crafting Spam</span>
+          <span class="profile-hotkey">F3</span>
+        </div>
+        <div class="profile-item">
+          <span class="profile-name">Test Sequence</span>
+          <span class="profile-hotkey">—</span>
+        </div>
+      </div>
+      <div class="global-stop">
+        <span>🛑 Global Stop</span>
+        <kbd>Shift+Alt+End</kbd>
+      </div>
+      <div class="btn-new">+ New Profile</div>
+    </div>
+
+    <!-- === RIGHT PANEL === -->
+    <div class="right-panel">
+      <!-- Profile Meta -->
+      <div class="profile-meta">
+        <input type="text" value="Buff Rotation">
+        <div class="mode-toggle">
+          <label>Sequential</label>
+          <label class="active">Concurrent</label>
+        </div>
+        <div class="hotkey-edit">
+          Profile Hotkey: <kbd>Shift+Alt+S</kbd>
+          <button class="btn-small">Change</button>
+        </div>
+      </div>
+
+      <!-- SEQUENCE MODE (hidden in this view) -->
+      <div class="sequence-area hidden">
+        <div class="section-title">Sequential Steps</div>
+        <table>
+          <tr>
+            <th class="key-cell">Keystroke</th>
+            <th class="delay-cell">Delay After (ms)</th>
+            <th class="hold-cell">Hold (ms)</th>
+            <th class="jitter-cell">Jitter</th>
+            <th class="actions-cell"></th>
+          </tr>
+          <tr>
+            <td class="key-cell"><input value="1"></td>
+            <td class="delay-cell"><input value="1000" type="number"></td>
+            <td class="hold-cell"><input value="50" type="number"></td>
+            <td class="jitter-cell"><input type="checkbox" checked></td>
+            <td class="actions-cell"><button class="btn-small danger">✕</button></td>
+          </tr>
+          <tr>
+            <td class="key-cell"><input value="Shift+2"></td>
+            <td class="delay-cell"><input value="500" type="number"></td>
+            <td class="hold-cell"><input value="50" type="number"></td>
+            <td class="jitter-cell"><input type="checkbox" checked></td>
+            <td class="actions-cell"><button class="btn-small danger">✕</button></td>
+          </tr>
+          <tr>
+            <td class="key-cell"><input value="3"></td>
+            <td class="delay-cell"><input value="200" type="number"></td>
+            <td class="hold-cell"><input value="50" type="number"></td>
+            <td class="jitter-cell"><input type="checkbox"></td>
+            <td class="actions-cell"><button class="btn-small danger">✕</button></td>
+          </tr>
+        </table>
+        <div class="add-row">+ Add Step</div>
+        <div class="hint">
+          <strong>Sequential mode:</strong> Steps run in order, one after another. Use for skill rotations or combo sequences.
+        </div>
+      </div>
+
+      <!-- CONCURRENT MODE (visible) -->
+      <div class="sequence-area">
+        <div class="section-title">Concurrent Repeaters</div>
+        <table class="concurrent-table">
+          <tr>
+            <th class="key-cell">Keystroke</th>
+            <th class="interval-cell">Interval (ms)</th>
+            <th class="hold-cell">Hold (ms)</th>
+            <th class="jitter-cell">Jitter</th>
+            <th>Status</th>
+            <th class="actions-cell"></th>
+          </tr>
+          <tr>
+            <td class="key-cell"><input value="1"></td>
+            <td class="interval-cell"><input value="1000" type="number"></td>
+            <td class="hold-cell"><input value="50" type="number"></td>
+            <td class="jitter-cell"><input type="checkbox" checked></td>
+            <td><span class="status-badge running"></span>Running</td>
+            <td class="actions-cell"><button class="btn-small danger">✕</button></td>
+          </tr>
+          <tr>
+            <td class="key-cell"><input value="2"></td>
+            <td class="interval-cell"><input value="2000" type="number"></td>
+            <td class="hold-cell"><input value="50" type="number"></td>
+            <td class="jitter-cell"><input type="checkbox" checked></td>
+            <td><span class="status-badge running"></span>Running</td>
+            <td class="actions-cell"><button class="btn-small danger">✕</button></td>
+          </tr>
+          <tr>
+            <td class="key-cell"><input value="3"></td>
+            <td class="interval-cell"><input value="5000" type="number"></td>
+            <td class="hold-cell"><input value="50" type="number"></td>
+            <td class="jitter-cell"><input type="checkbox" checked></td>
+            <td><span class="status-badge paused"></span>Paused</td>
+            <td class="actions-cell"><button class="btn-small danger">✕</button></td>
+          </tr>
+          <tr>
+            <td class="key-cell"><input value="Shift+Click"></td>
+            <td class="interval-cell"><input value="3000" type="number"></td>
+            <td class="hold-cell"><input value="100" type="number"></td>
+            <td class="jitter-cell"><input type="checkbox"></td>
+            <td><span class="status-badge running"></span>Running</td>
+            <td class="actions-cell"><button class="btn-small danger">✕</button></td>
+          </tr>
+        </table>
+        <div class="add-row">+ Add Repeater</div>
+        <div class="hint">
+          <strong>Concurrent mode ("Diablo Mode"):</strong> Each row runs on its own independent timer. Start/stop individually or all at once.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

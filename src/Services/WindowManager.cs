@@ -36,6 +36,12 @@ public class WindowManager
     [DllImport("user32.dll")]
     static extern IntPtr GetForegroundWindow();
 
+    [DllImport("user32.dll", SetLastError = true)]
+    static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
+    [DllImport("kernel32.dll")]
+    static extern uint GetCurrentThreadId();
+
     private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
     [StructLayout(LayoutKind.Sequential)]
@@ -90,12 +96,20 @@ public class WindowManager
         var current = GetForegroundWindow();
         if (current != _lockedHwnd)
         {
+            var ourThread = GetCurrentThreadId();
+            var fgThread = GetWindowThreadProcessId(current, out _);
+            AttachThreadInput(ourThread, fgThread, true);
             SetForegroundWindow(_lockedHwnd);
+            AttachThreadInput(ourThread, fgThread, false);
         }
         sendAction();
         if (current != _lockedHwnd && current != IntPtr.Zero)
         {
+            var ourThread = GetCurrentThreadId();
+            var fgThread = GetWindowThreadProcessId(current, out _);
+            AttachThreadInput(ourThread, fgThread, true);
             SetForegroundWindow(current);
+            AttachThreadInput(ourThread, fgThread, false);
         }
     }
 

@@ -318,16 +318,22 @@
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="*" />
                       <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="13"
                               Foreground="#E2E4E9" VerticalAlignment="Center"
                               Margin="0 0 8 0" />
 
-                    <Border Grid.Column="1" Style="{StaticResource HotkeyBadge}">
+                    <Border Grid.Column="1" Style="{StaticResource HotkeyBadge}" Margin="0 0 6 0">
                       <TextBlock Text="{Binding HotkeyDisplay}"
                                 FontSize="11" Foreground="#8B90A0" />
                     </Border>
+
+                    <Button Grid.Column="2" Content="✕" FontSize="10"
+                            Style="{StaticResource DangerButton}"
+                            Command="{Binding DataContext.DeleteProfileCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                            CommandParameter="{Binding}" />
                   </Grid>
                 </DataTemplate>
               </ListBox.ItemTemplate>

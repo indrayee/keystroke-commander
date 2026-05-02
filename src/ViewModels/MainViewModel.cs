@@ -213,6 +213,17 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void DeleteProfile(object? parameter)
+    {
+        if (parameter is not Profile p) return;
+        Profiles.Remove(p);
+        if (SelectedProfile == p)
+            SelectedProfile = Profiles.FirstOrDefault();
+        RefreshHotkeys();
+        SaveProfiles();
+    }
+
+    [RelayCommand]
     private void SetModeSequential()
     {
         if (SelectedProfile == null) return;

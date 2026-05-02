@@ -123,13 +123,19 @@ public partial class MainViewModel : ObservableObject
     private void RefreshHotkeys()
     {
         _hotkeyManager?.UnregisterAll();
+        if (_hotkeyManager == null)
+        {
+            HotkeysActive = false;
+            HotkeyStatusText = "None";
+            return;
+        }
         int ok = 0, fail = 0;
         List<string> failDetails = new();
 
-        if (_hotkeyManager?.Register(GlobalStopHotkey, out var err) == true) ok++; else { fail++; if (err != null) failDetails.Add(err); }
+        if (_hotkeyManager.Register(GlobalStopHotkey, out var err)) ok++; else { fail++; if (err != null) failDetails.Add(err); }
         foreach (var p in Profiles.Where(p => !string.IsNullOrWhiteSpace(p.Hotkey)))
         {
-            if (_hotkeyManager?.Register(p.Hotkey!, out var e2) == true) ok++; else { fail++; if (e2 != null) failDetails.Add(e2); }
+            if (_hotkeyManager.Register(p.Hotkey!, out var e2)) ok++; else { fail++; if (e2 != null) failDetails.Add(e2); }
         }
         HotkeysActive = fail == 0 && ok > 0;
         if (fail > 0)

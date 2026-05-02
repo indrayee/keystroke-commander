@@ -32,15 +32,19 @@ public class HotkeyManager : IDisposable
         var (mods, vk) = ParseHotkey(hotkeyString);
         if (vk == 0)
         {
-            error = "Invalid hotkey";
+            error = $"Invalid hotkey: '{hotkeyString}'";
+            System.Diagnostics.Debug.WriteLine($"[HotkeyManager] {error}");
             return false;
         }
         int id = _nextId++;
         if (!RegisterHotKey(_hwnd, id, mods, vk))
         {
-            error = $"Hotkey '{hotkeyString}' is already in use by another application";
+            int winErr = Marshal.GetLastWin32Error();
+            error = $"Hotkey '{hotkeyString}' failed to register. Win32 error {winErr}. (Another app may be using it.)";
+            System.Diagnostics.Debug.WriteLine($"[HotkeyManager] RegisterHotKey failed for '{hotkeyString}', mods={mods}, vk={vk}, err={winErr}");
             return false;
         }
+        System.Diagnostics.Debug.WriteLine($"[HotkeyManager] Registered '{hotkeyString}' as id={id}, mods={mods}, vk={vk}");
         _hotkeys[id] = hotkeyString;
         return true;
     }

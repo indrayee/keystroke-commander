@@ -91,19 +91,43 @@ public class WindowManager
     public void SendToTarget(Action sendAction)
     {
         RefreshStatus();
-        if (Status != TargetStatus.Locked) return;
+        if (Status != TargetStatus.Locked)
+        {
+            System.Diagnostics.Debug.WriteLine($"[WindowManager] SendToTarget blocked — status={Status}");
+            return;
+        }
 
         var current = GetForegroundWindow();
-        if (current != _lockedHwnd)
+        bool needRestore = current != _lockedHwnd && current != IntPtr.Zero;
+
+        if (needRestore)
         {
             var ourThread = GetCurrentThreadId();
             var fgThread = GetWindowThreadProcessId(current, out _);
             AttachThreadInput(ourThread, fgThread, true);
-            SetForegroundWindow(_lockedHwnd);
+            bool focused = SetForegroundWindow(_lockedHwnd);
             AttachThreadInput(ourThread, fgThread, false);
+
+            if (!focused)
+            {
+                System.Diagnostics.Debug.WriteLine($"[WindowManager] SetForegroundWindow FAILED for hwnd={_lockedHwnd}");
+                return;
+            }
+
+            // Windows focus switch is async — give it a beat
+            System.Threading.Thread.Sleep(50);
+            var nowFg = GetForegroundWindow();
+            if (nowFg != _lockedHwnd)
+            {
+                System.Diagnostics.Debug.WriteLine($"[WindowManager] Focus mismatch after switch. Expected {_lockedHwnd}, got {nowFg}");
+            }
         }
+
+        System.Diagnostics.Debug.WriteLine($"[WindowManager] Sending keystrokes to hwnd={_lockedHwnd}");
         sendAction();
-        if (current != _lockedHwnd && current != IntPtr.Zero)
+        System.Threading.Thread.Sleep(50); // Let keystrokes be processed before we steal focus back
+
+        if (needRestore)
         {
             var ourThread = GetCurrentThreadId();
             var fgThread = GetWindowThreadProcessId(current, out _);

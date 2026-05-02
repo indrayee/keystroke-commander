@@ -13,14 +13,12 @@ public class MacroEngine : IDisposable
     [DllImport("user32.dll")]
     static extern uint SendInput(uint nInputs, [MarshalAs(UnmanagedType.LPArray)] INPUT[] pInputs, int cbSize);
 
-    [DllImport("user32.dll")]
-    static extern uint SendInput(uint nInputs, IntPtr pInputs, int cbSize);
-
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Explicit)]
     struct INPUT
     {
-        public uint Type;
-        public KEYBDINPUT ki;
+        [FieldOffset(0)] public uint Type;
+        [FieldOffset(8)] public KEYBDINPUT ki;
+        [FieldOffset(8)] public MOUSEINPUT mi;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -31,6 +29,17 @@ public class MacroEngine : IDisposable
         public uint Flags;
         public uint Time;
         public IntPtr ExtraInfo;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct MOUSEINPUT
+    {
+        public int dx;
+        public int dy;
+        public uint mouseData;
+        public uint dwFlags;
+        public uint time;
+        public IntPtr dwExtraInfo;
     }
 
     const uint INPUT_KEYBOARD = 1;
@@ -91,12 +100,20 @@ public class MacroEngine : IDisposable
         IsRunning = true;
         try
         {
+            if (profile.Steps.Count == 0)
+            {
+                System.Diagnostics.Debug.WriteLine("[MacroEngine] Sequential mode started but profile has no steps.");
+                IsRunning = false;
+                RunningChanged?.Invoke(this, false);
+                return;
+            }
             while (!ct.IsCancellationRequested)
             {
                 foreach (var step in profile.Steps)
                 {
                     if (ct.IsCancellationRequested) break;
                     var delay = step.Jitter ? Jitter(step.DelayMs) : step.DelayMs;
+                    System.Diagnostics.Debug.WriteLine($"[MacroEngine] Sending: {step.Key} (delay {delay}ms)");
                     _windowManager.SendToTarget(() => SendKey(step.Key, step.HoldMs));
                     await Task.Delay(delay, ct).ConfigureAwait(false);
                 }
@@ -110,6 +127,7 @@ public class MacroEngine : IDisposable
     {
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[MacroEngine] Repeater started: {r.Key} every {r.IntervalMs}ms");
             while (!ct.IsCancellationRequested)
             {
                 var interval = r.Jitter ? Jitter(r.IntervalMs) : r.IntervalMs;
@@ -165,7 +183,9 @@ public class MacroEngine : IDisposable
             Type = INPUT_KEYBOARD,
             ki = new KEYBDINPUT { Vk = vk, Flags = flags, Time = 0, ExtraInfo = IntPtr.Zero }
         };
-        SendInput(1, new[] { inp }, Marshal.SizeOf<INPUT>());
+        int cbSize = Marshal.SizeOf<INPUT>();
+        uint sent = SendInput(1, new[] { inp }, cbSize);
+        System.Diagnostics.Debug.WriteLine($"[MacroEngine] SendInput cbSize={cbSize}, sent={sent}, vk={vk:X}");
     }
 
     private static void SendMouseWithMods(List<ushort> modifiers, string clickType, int holdMs)
@@ -192,26 +212,9 @@ public class MacroEngine : IDisposable
         var inp = new INPUT
         {
             Type = INPUT_MOUSE,
-            ki = new KEYBDINPUT()
+            mi = new MOUSEINPUT { dwFlags = flags }
         };
-        // We need MOUSEINPUT layout. Since MOUSEINPUT and KEYBDINPUT are the same size (24 bytes)
-        // and share offset, we can abuse the union by writing raw bytes.
-        // Simpler: define a proper struct for marshaling.
-        // Actually, let's just use a separate struct and marshal.
-        // Win: Create a byte array of the right size.
-        int sz = Marshal.SizeOf<INPUT>();
-        byte[] raw = new byte[sz];
-        BitConverter.GetBytes((int)INPUT_MOUSE).CopyTo(raw, 0);
-        BitConverter.GetBytes((int)0).CopyTo(raw, 4); // dx
-        BitConverter.GetBytes((int)0).CopyTo(raw, 8); // dy
-        BitConverter.GetBytes((uint)0).CopyTo(raw, 12); // mouseData
-        BitConverter.GetBytes(flags).CopyTo(raw, 16); // dwFlags
-        BitConverter.GetBytes((uint)0).CopyTo(raw, 20); // time
-        // extraInfo is pointer-sized, leave zeroed
-        var ptr = Marshal.AllocHGlobal(sz);
-        Marshal.Copy(raw, 0, ptr, sz);
-        SendInput(1, ptr, sz);
-        Marshal.FreeHGlobal(ptr);
+        SendInput(1, new[] { inp }, Marshal.SizeOf<INPUT>());
     }
 
     private static ushort ParseMod(string mod)

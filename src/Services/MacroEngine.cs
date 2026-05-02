@@ -49,11 +49,15 @@ public class MacroEngine : IDisposable
         _windowManager = windowManager;
     }
 
+    public event EventHandler<bool>? RunningChanged;
+
     public void StartSequential(Profile profile)
     {
         StopAll();
         _sequentialCts = new CancellationTokenSource();
         _ = RunSequentialAsync(profile, _sequentialCts.Token);
+        IsRunning = true;
+        RunningChanged?.Invoke(this, true);
     }
 
     public void StartConcurrent(Profile profile)
@@ -66,6 +70,7 @@ public class MacroEngine : IDisposable
             _ = RunRepeaterAsync(r, cts.Token);
         }
         IsRunning = true;
+        RunningChanged?.Invoke(this, true);
     }
 
     public void StopAll()
@@ -78,6 +83,7 @@ public class MacroEngine : IDisposable
         }
         _runningRepeaters.Clear();
         IsRunning = false;
+        RunningChanged?.Invoke(this, false);
     }
 
     private async Task RunSequentialAsync(Profile profile, CancellationToken ct)

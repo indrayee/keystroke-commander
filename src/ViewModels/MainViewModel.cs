@@ -49,6 +49,20 @@ public partial class MainViewModel : ObservableObject
     private bool _isRecordingHotkey;
 
     [ObservableProperty]
+    private string _hotkeyStatusText = "Idle";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HotkeyStatusColor))]
+    private bool _hotkeysActive;
+
+    public Brush HotkeyStatusColor => HotkeysActive ? Brushes.LimeGreen : Brushes.OrangeRed;
+
+    [ObservableProperty]
+    private string _runningStatusText = "";
+
+    public void UpdateRunningStatus(bool running) => RunningStatusText = running ? "🟢 RUNNING" : "";
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EditorTitle))]
     [NotifyPropertyChangedFor(nameof(AddRowText))]
     [NotifyPropertyChangedFor(nameof(ModeHint))]
@@ -89,6 +103,7 @@ public partial class MainViewModel : ObservableObject
             if (hotkey == GlobalStopHotkey)
             {
                 _macroEngine.StopAll();
+                UpdateRunningStatus(false);
                 return;
             }
             var profile = Profiles.FirstOrDefault(p => p.Hotkey == hotkey);
@@ -96,9 +111,11 @@ public partial class MainViewModel : ObservableObject
             if (_macroEngine.IsRunning)
             {
                 _macroEngine.StopAll();
+                UpdateRunningStatus(false);
                 return;
             }
             StartProfile(profile);
+            UpdateRunningStatus(true);
         };
         RefreshHotkeys();
     }
@@ -106,11 +123,21 @@ public partial class MainViewModel : ObservableObject
     private void RefreshHotkeys()
     {
         _hotkeyManager?.UnregisterAll();
-        _hotkeyManager?.Register(GlobalStopHotkey, out _);
+        int ok = 0, fail = 0;
+        List<string> failDetails = new();
+
+        if (_hotkeyManager?.Register(GlobalStopHotkey, out var err) == true) ok++; else { fail++; if (err != null) failDetails.Add(err); }
         foreach (var p in Profiles.Where(p => !string.IsNullOrWhiteSpace(p.Hotkey)))
         {
-            _hotkeyManager?.Register(p.Hotkey!, out var err);
+            if (_hotkeyManager?.Register(p.Hotkey!, out var e2) == true) ok++; else { fail++; if (e2 != null) failDetails.Add(e2); }
         }
+        HotkeysActive = fail == 0 && ok > 0;
+        if (fail > 0)
+            HotkeyStatusText = $"{ok} OK, {fail} FAILED";
+        else if (ok > 0)
+            HotkeyStatusText = $"{ok} registered ✓";
+        else
+            HotkeyStatusText = "None";
     }
 
     private async Task RefreshWindowsLoopAsync()

@@ -172,6 +172,7 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
     <!-- ========== TOP BAR ========== -->
@@ -432,5 +433,19 @@
         </ScrollViewer>
       </Grid>
     </Grid>
+
+    <!-- ========== STATUS BAR ========== -->
+    <Border Grid.Row="2" Background="#181A20" BorderBrush="#2A2D35" BorderThickness="0 1 0 0">
+      <StackPanel Orientation="Horizontal" Margin="12 6">
+        <TextBlock Text="Hotkeys:" FontSize="11" Foreground="{StaticResource TextMuted}"
+                  VerticalAlignment="Center" Margin="0 0 6 0"/>
+        <TextBlock Text="{Binding HotkeyStatusText}" FontSize="11"
+                  Foreground="{Binding HotkeyStatusColor}"
+                  VerticalAlignment="Center" FontFamily="Consolas"/>
+        <TextBlock Text="{Binding RunningStatusText}" FontSize="11"
+                  Foreground="#E2E4E9" VerticalAlignment="Center"
+                  Margin="12 0 0 0" FontFamily="Consolas"/>
+      </StackPanel>
+    </Border>
   </Grid>
 </Window>

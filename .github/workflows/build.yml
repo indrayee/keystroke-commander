@@ -1,0 +1,37 @@
+name: Build KeystrokeCommander
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Add NuGet source
+        run: dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
+
+      - name: Restore
+        run: dotnet restore src/KeystrokeCommander.csproj
+
+      - name: Build
+        run: dotnet build src/KeystrokeCommander.csproj --no-restore --configuration Release
+
+      - name: Publish
+        run: dotnet publish src/KeystrokeCommander.csproj -c Release -r win-x64 --self-contained false /p:PublishSingleFile=true --no-build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: KeystrokeCommander
+          path: src/bin/Release/net8.0-windows/win-x64/publish/*.exe

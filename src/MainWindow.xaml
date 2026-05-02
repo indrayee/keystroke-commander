@@ -225,47 +225,58 @@
 
           <!-- Profile List -->
           <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding Profiles}">
-              <ItemsControl.ItemTemplate>
+            <ListBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}"
+                     Background="Transparent" BorderThickness="0"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     AlternationCount="2">
+              <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                  <Setter Property="Padding" Value="0" />
+                  <Setter Property="Background" Value="Transparent" />
+                  <Setter Property="Foreground" Value="Transparent" />
+                  <Setter Property="BorderThickness" Value="0" />
+                  <Setter Property="Template">
+                    <Setter.Value>
+                      <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                BorderBrush="#22252D" BorderThickness="0 0 0 1"
+                                Padding="10 12" Cursor="Hand">
+                          <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                          <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="#1A2F4A" />
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="#339AF0" />
+                          </Trigger>
+                          <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="#1A1D24" />
+                          </Trigger>
+                        </ControlTemplate.Triggers>
+                      </ControlTemplate>
+                    </Setter.Value>
+                  </Setter>
+                </Style>
+              </ListBox.ItemContainerStyle>
+              <ListBox.ItemTemplate>
                 <DataTemplate>
-                  <Border Margin="0" Padding="10 12"
-                           BorderBrush="#22252D" BorderThickness="0 0 0 1"
-                           Cursor="Hand">
-                    <Border.Style>
-                      <Style TargetType="Border">
-                        <Setter Property="Background" Value="Transparent" />
-                        <Style.Triggers>
-                          <DataTrigger Binding="{Binding Id}" Value="{Binding DataContext.SelectedProfile.Id, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
-                            <Setter Property="Background" Value="#1A2F4A" />
-                            <Setter Property="BorderBrush" Value="#339AF0" />
-                          </DataTrigger>
-                        </Style.Triggers>
-                      </Style>
-                    </Border.Style>
-                    <Grid>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                      </Grid.ColumnDefinitions>
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
 
-                      <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="13"
-                                Foreground="#E2E4E9" VerticalAlignment="Center"
-                                Margin="0 0 8 0" />
+                    <TextBlock Grid.Column="0" Text="{Binding Name}" FontSize="13"
+                              Foreground="#E2E4E9" VerticalAlignment="Center"
+                              Margin="0 0 8 0" />
 
-                      <Border Grid.Column="1" Style="{StaticResource HotkeyBadge}">
-                        <TextBlock Text="{Binding HotkeyDisplay}"
-                                  FontSize="11" Foreground="#8B90A0" />
-                      </Border>
-                    </Grid>
-                    <Border.InputBindings>
-                      <MouseBinding Gesture="LeftClick"
-                                    Command="{Binding DataContext.SelectProfileCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                    CommandParameter="{Binding}" />
-                    </Border.InputBindings>
-                  </Border>
+                    <Border Grid.Column="1" Style="{StaticResource HotkeyBadge}">
+                      <TextBlock Text="{Binding HotkeyDisplay}"
+                                FontSize="11" Foreground="#8B90A0" />
+                    </Border>
+                  </Grid>
                 </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
+              </ListBox.ItemTemplate>
+            </ListBox>
           </ScrollViewer>
         </DockPanel>
       </Border>

@@ -30,16 +30,16 @@ public partial class HotkeyDialog : Window
     private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         e.Handled = true;
-        if (!_keysDown.Contains(e.Key) && e.Key != Key.System)
-            _keysDown.Add(e.Key);
-        UpdateDisplay();
-    }
-
-    private void Window_KeyDown(object sender, KeyEventArgs e)
-    {
-        e.Handled = true;
         var key = e.Key == Key.System ? e.SystemKey : e.Key;
         if (key == Key.ImeProcessed) return;
+
+        // Starting a fresh capture — clear old combo
+        if (_keysDown.Count == 0 && !string.IsNullOrEmpty(_capturedCombo))
+        {
+            _capturedCombo = null;
+            AssignBtn.IsEnabled = false;
+        }
+
         if (!_keysDown.Contains(key))
             _keysDown.Add(key);
         UpdateDisplay();
@@ -53,15 +53,24 @@ public partial class HotkeyDialog : Window
         UpdateDisplay();
     }
 
+    private bool IsModifierKey(Key key) => _modKeys.Contains(key);
+
     private void UpdateDisplay()
     {
         if (_keysDown.Count == 0)
         {
+            // If we already captured a valid combo, keep it visible
+            if (!string.IsNullOrEmpty(_capturedCombo))
+            {
+                ComboText.Text = string.Join(" + ", _capturedCombo.Split('+'));
+                return;
+            }
             ComboText.Text = "(press keys...)";
             _capturedCombo = null;
             AssignBtn.IsEnabled = false;
             return;
         }
+
         var mods = _keysDown.Where(k => _modKeys.Contains(k))
                             .Select(k => k switch
                             {
@@ -71,12 +80,10 @@ public partial class HotkeyDialog : Window
                                 Key.LWin or Key.RWin => "Win",
                                 _ => k.ToString()
                             }).Distinct().ToList();
+
         var normal = _keysDown.Where(k => !_modKeys.Contains(k))
-                              .Select(k => k == Key.LeftShift || k == Key.RightShift ? "Shift" :
-                                             k == Key.LeftCtrl || k == Key.RightCtrl ? "Ctrl" :
-                                             k == Key.LeftAlt || k == Key.RightAlt ? "Alt" :
-                                             k == Key.LWin || k == Key.RWin ? "Win" :
-                                             k.ToString()).Distinct().ToList();
+                              .Select(k => k.ToString()).Distinct().ToList();
+
         if (normal.Count == 0 && mods.Count > 0)
         {
             ComboText.Text = string.Join(" + ", mods) + " + ...";
@@ -84,6 +91,7 @@ public partial class HotkeyDialog : Window
             AssignBtn.IsEnabled = false;
             return;
         }
+
         var parts = new List<string>(mods);
         parts.AddRange(normal.Take(1));
         var combo = string.Join("+", parts);

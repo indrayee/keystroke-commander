@@ -31,7 +31,7 @@
 
     <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
       <Button x:Name="AssignBtn" Content="Assign" Padding="40 16" Margin="0 0 16 0"
-              Background="#339AF0" Foreground="#FFFFFF" BorderThickness="0"
+              Background="#51CF66" Foreground="#000000" BorderThickness="0"
               FontSize="17" FontWeight="SemiBold" Click="AssignBtn_Click"
               IsEnabled="False" />
       <Button Content="Cancel" Padding="40 16"

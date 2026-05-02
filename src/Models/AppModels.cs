@@ -65,4 +65,26 @@ public enum TargetStatus
     Minimized
 }
 
-public record WindowInfo(IntPtr Hwnd, string Title, string ProcessName, int Width, int Height);
+public class WindowInfo : IEquatable<WindowInfo>
+{
+    public IntPtr Hwnd { get; init; }
+    public string Title { get; init; } = string.Empty;
+    public string ProcessName { get; init; } = string.Empty;
+    public int Width { get; init; }
+    public int Height { get; init; }
+
+    public WindowInfo(IntPtr hwnd, string title, string processName, int width, int height)
+    {
+        Hwnd = hwnd;
+        Title = title;
+        ProcessName = processName;
+        Width = width;
+        Height = height;
+    }
+
+    public bool Equals(WindowInfo? other) => other is not null && Hwnd == other.Hwnd;
+    public override bool Equals(object? obj) => obj is WindowInfo other && Equals(other);
+    public override int GetHashCode() => Hwnd.GetHashCode();
+
+    public override string ToString() => $"{ProcessName} \"{Title}\" ({Width}x{Height})";
+}

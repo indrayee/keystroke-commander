@@ -42,6 +42,9 @@ public partial class Profile : ObservableObject
     [ObservableProperty]
     private string? _hotkey;
 
+    [ObservableProperty]
+    private bool _backgroundMode;
+
     public List<MacroStep> Steps { get; set; } = new();
     public List<ConcurrentRepeater> Repeaters { get; set; } = new();
 

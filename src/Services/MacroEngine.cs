@@ -13,6 +13,16 @@ public class MacroEngine : IDisposable
     [DllImport("user32.dll")]
     static extern uint SendInput(uint nInputs, [MarshalAs(UnmanagedType.LPArray)] INPUT[] pInputs, int cbSize);
 
+    [DllImport("user32.dll")]
+    static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+    const uint WM_KEYDOWN = 0x0100;
+    const uint WM_KEYUP = 0x0101;
+    const uint WM_LBUTTONDOWN = 0x0201;
+    const uint WM_LBUTTONUP = 0x0202;
+    const uint WM_RBUTTONDOWN = 0x0204;
+    const uint WM_RBUTTONUP = 0x0205;
+
     [StructLayout(LayoutKind.Explicit)]
     struct INPUT
     {
@@ -50,6 +60,7 @@ public class MacroEngine : IDisposable
     private readonly Random _rng = new();
     private readonly Dictionary<Guid, CancellationTokenSource> _runningRepeaters = new();
     private CancellationTokenSource? _sequentialCts;
+    private Profile? _currentProfile;
 
     public bool IsRunning { get; private set; }
 
@@ -63,6 +74,7 @@ public class MacroEngine : IDisposable
     public void StartSequential(Profile profile)
     {
         StopAll();
+        _currentProfile = profile;
         _sequentialCts = new CancellationTokenSource();
         _ = RunSequentialAsync(profile, _sequentialCts.Token);
         IsRunning = true;
@@ -72,6 +84,7 @@ public class MacroEngine : IDisposable
     public void StartConcurrent(Profile profile)
     {
         StopAll();
+        _currentProfile = profile;
         foreach (var r in profile.Repeaters)
         {
             var cts = new CancellationTokenSource();
@@ -92,6 +105,7 @@ public class MacroEngine : IDisposable
         }
         _runningRepeaters.Clear();
         IsRunning = false;
+        _currentProfile = null;
         RunningChanged?.Invoke(this, false);
     }
 
@@ -114,7 +128,7 @@ public class MacroEngine : IDisposable
                     if (ct.IsCancellationRequested) break;
                     var delay = step.Jitter ? Jitter(step.DelayMs) : step.DelayMs;
                     System.Diagnostics.Debug.WriteLine($"[MacroEngine] Sending: {step.Key} (delay {delay}ms)");
-                    _windowManager.SendToTarget(() => SendKey(step.Key, step.HoldMs));
+                    Dispatch(step.Key, step.HoldMs);
                     await Task.Delay(delay, ct).ConfigureAwait(false);
                 }
             }
@@ -131,11 +145,51 @@ public class MacroEngine : IDisposable
             while (!ct.IsCancellationRequested)
             {
                 var interval = r.Jitter ? Jitter(r.IntervalMs) : r.IntervalMs;
-                _windowManager.SendToTarget(() => SendKey(r.Key, r.HoldMs));
+                Dispatch(r.Key, r.HoldMs);
                 await Task.Delay(interval, ct).ConfigureAwait(false);
             }
         }
         catch (OperationCanceledException) { }
+    }
+
+    private void Dispatch(string key, int holdMs)
+    {
+        if (_currentProfile?.BackgroundMode == true)
+        {
+            var hwnd = _windowManager.LockedHwnd;
+            if (hwnd == IntPtr.Zero) return;
+            SendKeyToHwnd(hwnd, key, holdMs);
+        }
+        else
+        {
+            _windowManager.SendToTarget(() => SendKey(key, holdMs));
+        }
+    }
+
+    private void SendKeyToHwnd(IntPtr hwnd, string key, int holdMs)
+    {
+        var parts = key.Split('+', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var modifiers = parts[..^1].Select(ParseMod).Where(m => m != 0).ToList();
+        var mainKey = parts[^1].ToUpperInvariant();
+
+        if (mainKey is "CLICK" or "LCLICK" or "RCLICK")
+        {
+            // Mouse clicks via PostMessage are unreliable (coordinate mapping).
+            // Fall back to SendInput with focus switch.
+            _windowManager.SendToTarget(() => SendMouseWithMods(modifiers, mainKey, holdMs));
+            return;
+        }
+
+        var vk = KeyToVk(mainKey);
+        if (vk == 0) return;
+
+        foreach (var mod in modifiers)
+            PostMessage(hwnd, WM_KEYDOWN, (IntPtr)mod, IntPtr.Zero);
+        PostMessage(hwnd, WM_KEYDOWN, (IntPtr)vk, IntPtr.Zero);
+        if (holdMs > 0) Thread.Sleep(holdMs);
+        PostMessage(hwnd, WM_KEYUP, (IntPtr)vk, IntPtr.Zero);
+        foreach (var mod in modifiers.AsEnumerable().Reverse())
+            PostMessage(hwnd, WM_KEYUP, (IntPtr)mod, IntPtr.Zero);
     }
 
     private int Jitter(int baseMs)

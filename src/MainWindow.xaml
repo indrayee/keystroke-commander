@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:KeystrokeCommander.ViewModels"
+        xmlns:local="clr-namespace:KeystrokeCommander"
         mc:Ignorable="d"
         Title="Keystroke Commander" Height="700" Width="1050"
         Background="#14161C" Foreground="#E2E4E9"
@@ -21,6 +22,15 @@
     <SolidColorBrush x:Key="AccentBlue" Color="#339AF0" />
     <SolidColorBrush x:Key="AccentGreen" Color="#51CF66" />
     <SolidColorBrush x:Key="AccentRed" Color="#FF6B6B" />
+
+    <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+    <local:BoolToBrushConverter x:Key="BoolToBgBrush"
+                               TrueBrush="#1A3A2A" FalseBrush="#23262E" />
+    <local:BoolToBrushConverter x:Key="BoolToFgBrush"
+                               TrueBrush="#69DB7C" FalseBrush="#E2E4E9" />
+    <local:BoolToBrushConverter x:Key="BoolToBorderBrush"
+                               TrueBrush="#2D6A4F" FalseBrush="#333842" />
 
     <Style x:Key="DarkButton" TargetType="Button">
       <Setter Property="Background" Value="#23262E" />
@@ -390,6 +400,30 @@
                       Content="Change"
                       Command="{Binding ChangeHotkeyCommand}" />
             </StackPanel>
+
+            <Button Margin="16 0 0 0" Padding="8 6" FontSize="12"
+                    Background="{Binding SelectedProfile.BackgroundMode, Converter={StaticResource BoolToBgBrush}}"
+                    Foreground="{Binding SelectedProfile.BackgroundMode, Converter={StaticResource BoolToFgBrush}}"
+                    BorderThickness="1"
+                    BorderBrush="{Binding SelectedProfile.BackgroundMode, Converter={StaticResource BoolToBorderBrush}}"
+                    Command="{Binding ToggleBackgroundModeCommand}"
+                    ToolTipService.InitialShowDelay="0">
+              <Button.ToolTip>
+                <ToolTip Background="#1E2128" Foreground="#E2E4E9"
+                         BorderBrush="#FF6B6B" BorderThickness="1">
+                  <TextBlock TextWrapping="Wrap" MaxWidth="380" Padding="6">
+                    <Run FontWeight="Bold" Foreground="#FF6B6B">⚠ Background Mode Warning</Run>
+                    <LineBreak />
+                    Sends keystrokes via PostMessage without bringing the target window to the foreground.
+                    <LineBreak />
+                    <Run FontWeight="Bold">Won't work</Run> for DirectX / raw-input games (most modern games read input at the hardware level, not from the Windows message queue).
+                    <LineBreak />
+                    Works fine for standard Win32 apps (Notepad, browsers, IDEs, classic games).
+                  </TextBlock>
+                </ToolTip>
+              </Button.ToolTip>
+              <TextBlock Text="{Binding BackgroundModeButtonText}" />
+            </Button>
           </StackPanel>
         </Border>
 

@@ -242,6 +242,17 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void ToggleBackgroundMode()
+    {
+        if (SelectedProfile == null) return;
+        SelectedProfile.BackgroundMode = !SelectedProfile.BackgroundMode;
+        OnPropertyChanged(nameof(BackgroundModeButtonText));
+        SaveProfiles();
+    }
+
+    public string BackgroundModeButtonText => SelectedProfile?.BackgroundMode == true ? "🌐 Background" : "🔒 Foreground";
+
+    [RelayCommand]
     private void AddRow()
     {
         if (SelectedProfile == null) return;
@@ -341,6 +352,7 @@ public partial class MainViewModel : ObservableObject
         {
             CurrentMode = value.Mode;
             RefreshEditor();
+            OnPropertyChanged(nameof(BackgroundModeButtonText));
         }
     }
 

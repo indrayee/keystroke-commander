@@ -133,6 +133,35 @@
           <Style TargetType="DataGridCell">
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Padding" Value="8 6" />
+            <Setter Property="Foreground" Value="#E2E4E9" />
+            <Style.Triggers>
+              <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="#1A2F4A" />
+                <Setter Property="Foreground" Value="#FFFFFF" />
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </Setter.Value>
+      </Setter>
+      <Setter Property="ColumnHeaderStyle">
+        <Setter.Value>
+          <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#1E2128" />
+            <Setter Property="Foreground" Value="#C9CCD6" />
+            <Setter Property="BorderBrush" Value="#2A2D35" />
+            <Setter Property="BorderThickness" Value="0 0 0 1" />
+            <Setter Property="Padding" Value="8 6" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="12" />
+          </Style>
+        </Setter.Value>
+      </Setter>
+      <Setter Property="RowStyle">
+        <Setter.Value>
+          <Style TargetType="DataGridRow">
+            <Setter Property="Foreground" Value="#E2E4E9" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="MinHeight" Value="28" />
           </Style>
         </Setter.Value>
       </Setter>

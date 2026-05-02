@@ -34,7 +34,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _alwaysOnTop;
 
-    private bool _windowPickerIsOpen;
+    public bool WindowPickerIsOpen { get; set; }
 
     [ObservableProperty]
     private ObservableCollection<WindowInfo> _visibleWindows = new();
@@ -118,7 +118,7 @@ public partial class MainViewModel : ObservableObject
         while (true)
         {
             await Task.Delay(3000);
-            if (_windowPickerIsOpen) continue;
+            if (WindowPickerIsOpen) continue;
             var list = _windowManager.GetVisibleWindows();
             await System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
             {

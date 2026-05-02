@@ -1,35 +1,42 @@
 <Window x:Class="KeystrokeCommander.HotkeyDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Assign Hotkey" Height="200" Width="420"
+        Title="Assign Hotkey" Height="350" Width="550"
         Background="#14161C" Foreground="#E2E4E9"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize" Topmost="True"
-        KeyDown="Window_KeyDown" PreviewKeyDown="Window_PreviewKeyDown"
-        KeyUp="Window_KeyUp">
-  <Grid Margin="20 24">
+        PreviewKeyDown="Window_PreviewKeyDown"
+        PreviewKeyUp="Window_PreviewKeyUp">
+  <Grid Margin="32">
     <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
-    <TextBlock Grid.Row="0" Text="Press your desired key combination:" FontSize="13"
-              Foreground="#8B90A0" Margin="0 0 0 12" />
+    <TextBlock Grid.Row="0" Text="Press your desired hotkey:" FontSize="18"
+              FontWeight="SemiBold" Foreground="#E2E4E9" Margin="0 0 0 20" />
 
-    <Border Grid.Row="1" Background="#13151A" BorderBrush="#339AF0" BorderThickness="1"
-            CornerRadius="4" Padding="12 14" Margin="0 0 0 20">
-      <TextBlock x:Name="ComboText" Text="(press keys...)" FontSize="18"
-                FontWeight="SemiBold" Foreground="#339AF0" HorizontalAlignment="Center" />
+    <Border Grid.Row="1" Background="#13151A" BorderBrush="#339AF0" BorderThickness="2"
+            CornerRadius="6" Padding="20 24" Margin="0 0 0 32">
+      <TextBlock x:Name="ComboText" Text="(press keys...)" FontSize="26"
+                FontWeight="Bold" Foreground="#339AF0" HorizontalAlignment="Center"
+                FontFamily="Consolas" />
     </Border>
 
-    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-      <Button x:Name="AssignBtn" Content="Assign" Padding="16 6" Margin="0 0 8 0"
+    <TextBlock Grid.Row="2" Text="Example: Shift + Alt + S, Ctrl + F1"
+              FontSize="13" Foreground="#6B7080" HorizontalAlignment="Center"
+              Margin="0 0 0 32" />
+
+    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center">
+      <Button x:Name="AssignBtn" Content="Assign" Padding="30 12" Margin="0 0 12 0"
               Background="#339AF0" Foreground="#FFFFFF" BorderThickness="0"
-              FontSize="13" Click="AssignBtn_Click" IsEnabled="False" />
-      <Button Content="Cancel" Padding="16 6"
-              Background="#13151A" Foreground="#8B90A0" BorderBrush="#333842" BorderThickness="1"
-              FontSize="13" Click="CancelBtn_Click" />
+              FontSize="15" FontWeight="SemiBold" Click="AssignBtn_Click"
+              IsEnabled="False" />
+      <Button Content="Cancel" Padding="30 12"
+              Background="#23262E" Foreground="#8B90A0" BorderBrush="#333842" BorderThickness="1"
+              FontSize="15" FontWeight="SemiBold" Click="CancelBtn_Click" />
     </StackPanel>
   </Grid>
 </Window>

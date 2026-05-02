@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace KeystrokeCommander.Models;
 
@@ -29,12 +30,18 @@ public class ConcurrentRepeater
     public bool Jitter { get; set; } = true;
 }
 
-public class Profile
+public partial class Profile : ObservableObject
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public string Name { get; set; } = "New Profile";
+
+    [ObservableProperty]
+    private string _name = "New Profile";
+
     public MacroMode Mode { get; set; } = MacroMode.Sequential;
-    public string? Hotkey { get; set; }
+
+    [ObservableProperty]
+    private string? _hotkey;
+
     public List<MacroStep> Steps { get; set; } = new();
     public List<ConcurrentRepeater> Repeaters { get; set; } = new();
 

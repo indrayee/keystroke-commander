@@ -25,7 +25,7 @@ public class ConcurrentRepeater
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Key { get; set; } = string.Empty;
     public int IntervalMs { get; set; } = 1000;
-    public int DelayMs => IntervalMs; // alias for XAML binding
+    public int DelayMs { get => IntervalMs; set => IntervalMs = value; } // editable in grid
     public int HoldMs { get; set; } = 50;
     public bool Jitter { get; set; } = true;
 }

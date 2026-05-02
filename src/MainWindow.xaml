@@ -258,13 +258,18 @@
             <Grid Margin="8">
               <TextBlock Text="🛑 Global Stop" FontSize="12"
                         Foreground="#FF6B6B" VerticalAlignment="Center" />
-              <Border HorizontalAlignment="Right" Background="#3A1A1A"
+              <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Border Background="#3A1A1A"
                        BorderBrush="#5C1E1E" BorderThickness="1"
-                       CornerRadius="3" Padding="4 2">
-                <TextBlock Text="{Binding GlobalStopHotkey}"
-                          FontFamily="Consolas" FontSize="11"
-                          Foreground="#FF6B6B" />
-              </Border>
+                       CornerRadius="3" Padding="4 2" Margin="0 0 6 0">
+                  <TextBlock Text="{Binding GlobalStopHotkey}"
+                            FontFamily="Consolas" FontSize="11"
+                            Foreground="#FF6B6B" />
+                </Border>
+                <Button Style="{StaticResource SmallButton}"
+                        Content="Change"
+                        Command="{Binding ChangeGlobalStopHotkeyCommand}" />
+              </StackPanel>
             </Grid>
           </Border>
 

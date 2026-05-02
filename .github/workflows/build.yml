@@ -3,8 +3,9 @@ name: Build KeystrokeCommander
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -24,11 +25,30 @@ jobs:
       - name: Build
         run: dotnet build src/KeystrokeCommander.csproj --no-restore --configuration Release
 
-      - name: Publish
+      - name: Publish single-file EXE
         run: dotnet publish src/KeystrokeCommander.csproj -c Release -r win-x64 --self-contained false /p:PublishSingleFile=true --no-build
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Copy EXE to release staging
+        run: |
+          mkdir _release
+          copy src\bin\Release\net8.0-windows\win-x64\publish\KeystrokeCommander.exe _release\KeystrokeCommander.exe
+
+      - name: Delete previous rolling release
+        uses: dev-drprasad/delete-tag-and-release@v1.1
+        if: always()
         with:
-          name: KeystrokeCommander
-          path: src/bin/Release/net8.0-windows/win-x64/publish/*.exe
+          tag_name: latest
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          delete_release: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Keystroke Commander (latest)"
+          body: |
+            **Download:** `KeystrokeCommander.exe`
+            Requires .NET 8 Desktop Runtime.
+          files: _release/KeystrokeCommander.exe
+          draft: false
+          prerelease: false

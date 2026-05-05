@@ -11,7 +11,10 @@ public partial class MainWindow : Window
         Loaded += (_, _) =>
         {
             if (DataContext is MainViewModel vm)
+            {
                 vm.InitHotkeys(new System.Windows.Interop.WindowInteropHelper(this).Handle);
+                vm.CommitEditAction = () => EditorGrid.CommitEdit();
+            }
         };
         Closing += (_, _) =>
         {

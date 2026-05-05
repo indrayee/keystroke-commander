@@ -401,6 +401,12 @@
                       Command="{Binding ChangeHotkeyCommand}" />
             </StackPanel>
 
+            <Button Margin="16 0 0 0" Padding="10 6" FontSize="12"
+                    Background="#2D6A4F" Foreground="#69DB7C"
+                    BorderBrush="#2D6A4F"
+                    Command="{Binding SaveCommand}"
+                    Content="💾 Save" />
+
             <Button Margin="16 0 0 0" Padding="8 6" FontSize="12"
                     Background="{Binding SelectedProfile.BackgroundMode, Converter={StaticResource BoolToBgBrush}}"
                     Foreground="{Binding SelectedProfile.BackgroundMode, Converter={StaticResource BoolToFgBrush}}"

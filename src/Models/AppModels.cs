@@ -50,6 +50,8 @@ public partial class Profile : ObservableObject
 
     public string HotkeyDisplay => string.IsNullOrWhiteSpace(Hotkey) ? "—" : Hotkey;
     public string ModeDisplay => Mode == MacroMode.Sequential ? "Sequential" : "Concurrent";
+
+    partial void OnHotkeyChanged(string? value) => OnPropertyChanged(nameof(HotkeyDisplay));
 }
 
 public class AppSettings

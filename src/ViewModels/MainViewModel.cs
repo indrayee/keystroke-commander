@@ -209,7 +209,7 @@ public partial class MainViewModel : ObservableObject
         var p = new Profile { Name = $"Profile {Profiles.Count + 1}" };
         Profiles.Add(p);
         SelectedProfile = p;
-        SaveProfiles();
+        // Don't auto-save here — user presses Save when ready
     }
 
     [RelayCommand]
@@ -220,7 +220,7 @@ public partial class MainViewModel : ObservableObject
         if (SelectedProfile == p)
             SelectedProfile = Profiles.FirstOrDefault();
         RefreshHotkeys();
-        SaveProfiles();
+        // Don't auto-save here — changes persist only on explicit Save
     }
 
     [RelayCommand]
@@ -229,7 +229,7 @@ public partial class MainViewModel : ObservableObject
         if (SelectedProfile == null) return;
         SelectedProfile.Mode = MacroMode.Sequential;
         CurrentMode = MacroMode.Sequential;
-        SaveProfiles();
+        // Don't auto-save here
     }
 
     [RelayCommand]
@@ -238,7 +238,7 @@ public partial class MainViewModel : ObservableObject
         if (SelectedProfile == null) return;
         SelectedProfile.Mode = MacroMode.Concurrent;
         CurrentMode = MacroMode.Concurrent;
-        SaveProfiles();
+        // Don't auto-save here
     }
 
     [RelayCommand]
@@ -247,7 +247,7 @@ public partial class MainViewModel : ObservableObject
         if (SelectedProfile == null) return;
         SelectedProfile.BackgroundMode = !SelectedProfile.BackgroundMode;
         OnPropertyChanged(nameof(BackgroundModeButtonText));
-        SaveProfiles();
+        // Don't auto-save here
     }
 
     public string BackgroundModeButtonText => SelectedProfile?.BackgroundMode == true ? "🌐 Background" : "🔒 Foreground";
@@ -268,7 +268,7 @@ public partial class MainViewModel : ObservableObject
             SelectedProfile.Repeaters.Add(rep);
             EditorItems.Add(rep);
         }
-        SaveProfiles();
+        // Don't auto-save here
     }
 
     [RelayCommand]
@@ -285,7 +285,7 @@ public partial class MainViewModel : ObservableObject
             SelectedProfile.Repeaters.Remove(r);
             EditorItems.Remove(r);
         }
-        SaveProfiles();
+        // Don't auto-save here
     }
 
     [RelayCommand]
@@ -299,7 +299,7 @@ public partial class MainViewModel : ObservableObject
             SelectedProfile.Hotkey = dlg.CapturedCombo;
             OnPropertyChanged(nameof(SelectedProfile));
             RefreshHotkeys();
-            SaveProfiles();
+            // Don't auto-save here
         }
         IsRecordingHotkey = false;
     }
@@ -313,7 +313,7 @@ public partial class MainViewModel : ObservableObject
         {
             GlobalStopHotkey = dlg.CapturedCombo;
             RefreshHotkeys();
-            SaveProfiles();
+            // Don't auto-save here
         }
         IsRecordingHotkey = false;
     }
@@ -391,9 +391,20 @@ public partial class MainViewModel : ObservableObject
 
     public void SaveProfiles()
     {
+        // Commit any pending DataGrid edit before saving
+        CommitEditAction?.Invoke();
+
         _settings.Profiles = Profiles.ToList();
         _settings.DefaultProfileId = SelectedProfile?.Id.ToString();
         _settings.GlobalStopHotkey = GlobalStopHotkey;
         _store.Save(_settings);
+    }
+
+    public Action? CommitEditAction { get; set; }
+
+    [RelayCommand]
+    private void Save()
+    {
+        SaveProfiles();
     }
 }
